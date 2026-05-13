@@ -1,36 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useWallet } from "@/hooks/useWallet";
 import { naira } from "@/lib/networks";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Building2, CreditCard, Plus } from "lucide-react";
-
-const QUICK = [500, 1000, 2000, 5000, 10000, 20000];
+import { Building2, Copy, RefreshCw } from "lucide-react";
 
 export default function Wallet() {
-  const { balance, refresh } = useWallet();
-  const [amount, setAmount] = useState(0);
-  const [method, setMethod] = useState<"transfer" | "card">("transfer");
-  const [busy, setBusy] = useState(false);
+  const { balance } = useWallet();
+  const [account, setAccount] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  async function topup() {
-    if (amount < 100) return toast.error("Min ₦100");
-    setBusy(true);
-    const { error } = await supabase.rpc("topup_wallet", { _amount: amount, _method: method });
-    setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success(`Wallet funded with ${naira(amount)}`);
-    refresh(); setAmount(0);
+  useEffect(() => { loadAccount(); }, []);
+
+  async function loadAccount() {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("monnify-account", {});
+      if (error) throw error;
+      setAccount(data?.data);
+    } catch (e: any) {
+      toast.error(e.message || "Failed to load account details");
+    } finally { setLoading(false); }
+  }
+
+  function copy(text: string, label: string) {
+    navigator.clipboard.writeText(text).then(() => toast.success(`${label} copied!`));
   }
 
   return (
     <div className="space-y-5 pb-10">
-      <div>
-        <h1 className="font-display text-2xl font-semibold">Wallet</h1>
-      </div>
+      <div><h1 className="font-display text-2xl font-semibold">Wallet</h1></div>
 
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
         className="relative overflow-hidden rounded-3xl bg-gradient-primary p-6 shadow-glow">
@@ -40,39 +40,53 @@ export default function Wallet() {
       </motion.div>
 
       <div className="space-y-3">
-        <div className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Top-up amount</div>
-        <Input value={amount || ""} onChange={e => setAmount(Math.max(0, Number(e.target.value.replace(/\D/g, ""))))} placeholder="₦ 0" inputMode="numeric" className="h-14 rounded-2xl bg-secondary/40 text-lg font-semibold" />
-        <div className="grid grid-cols-3 gap-2">
-          {QUICK.map(v => (
-            <button key={v} onClick={() => setAmount(v)} type="button"
-              className={`rounded-xl border p-3 text-sm font-semibold transition ${amount === v ? "border-primary bg-primary/10" : "border-white/10 bg-white/[0.03] hover:bg-white/5"}`}>
-              {naira(v)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <div className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Pay with</div>
-        {[
-          { id: "transfer", icon: Building2, label: "Bank transfer", sub: "Free • Instant" },
-          { id: "card", icon: CreditCard, label: "Debit card", sub: "1.5% fee" },
-        ].map((m: any) => (
-          <button key={m.id} onClick={() => setMethod(m.id)} type="button"
-            className={`flex w-full items-center justify-between rounded-2xl border p-4 transition ${method === m.id ? "border-primary bg-primary/10" : "border-white/10 bg-white/[0.03]"}`}>
+        <div className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Fund via bank transfer</div>
+        {loading ? (
+          <div className="rounded-2xl glass p-5 space-y-3 animate-pulse">
+            <div className="h-4 w-32 bg-white/10 rounded" />
+            <div className="h-8 w-48 bg-white/10 rounded" />
+            <div className="h-4 w-40 bg-white/10 rounded" />
+          </div>
+        ) : account ? (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl glass p-5 space-y-4">
             <div className="flex items-center gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary"><m.icon className="h-4 w-4 text-white" /></span>
-              <div className="text-left"><div className="text-sm font-semibold">{m.label}</div><div className="text-[11px] text-muted-foreground">{m.sub}</div></div>
+              <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <Building2 className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Bank</div>
+                <div className="font-semibold">{account.bank_name || "Wema Bank"}</div>
+              </div>
             </div>
-            <span className={`h-4 w-4 rounded-full border ${method === m.id ? "border-accent bg-accent" : "border-white/20"}`} />
-          </button>
-        ))}
+            <div>
+              <div className="text-xs text-muted-foreground mb-1">Account Number</div>
+              <div className="flex items-center gap-3">
+                <span className="font-display text-2xl font-bold tracking-widest">{account.account_number}</span>
+                <button onClick={() => copy(account.account_number, "Account number")}
+                  className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition">
+                  <Copy className="h-4 w-4 text-primary" />
+                </button>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground mb-0.5">Account Name</div>
+              <div className="font-medium text-sm">{account.account_name}</div>
+            </div>
+            <div className="rounded-xl bg-primary/5 border border-primary/20 p-3 text-xs text-muted-foreground leading-relaxed">
+              💡 Transfer any amount to this account number. Your SwiftPay wallet balance will be updated <strong>instantly</strong> after the bank confirms the transfer.
+            </div>
+          </motion.div>
+        ) : (
+          <div className="rounded-2xl glass p-6 text-center space-y-3">
+            <p className="text-sm text-muted-foreground">Could not load your virtual account</p>
+            <button onClick={loadAccount}
+              className="flex items-center gap-2 mx-auto text-sm text-primary hover:underline">
+              <RefreshCw className="h-4 w-4" /> Try again
+            </button>
+          </div>
+        )}
       </div>
-
-      <Button variant="hero" size="xl" className="w-full" disabled={busy || !amount} onClick={topup}>
-        <Plus /> {busy ? "Processing…" : `Add ${amount ? naira(amount) : "funds"}`}
-      </Button>
-      <p className="text-center text-[11px] text-muted-foreground">Demo mode — funds are credited instantly. Real payment gateway integration available on request.</p>
     </div>
   );
 }
