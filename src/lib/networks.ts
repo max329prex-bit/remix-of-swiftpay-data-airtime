@@ -18,102 +18,67 @@ export function detectNetwork(phone: string): NetworkId | null {
   return NETWORKS.find(n => n.prefixes.includes(prefix))?.id ?? null;
 }
 
-export type DataBundle = { id: string; name: string; size: string; validity: string; buyPrice: number; price: number; };
+export const naira = (n: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(n);
 
-export const DATA_BUNDLES_VTU: Record<NetworkId, DataBundle[]> = {
-  MTN: [
-    { id: "mtn-500mb", name: "500MB", size: "500MB", validity: "30 days", buyPrice: 185, price: 230 },
-    { id: "mtn-1gb", name: "1GB", size: "1GB", validity: "30 days", buyPrice: 245, price: 280 },
-    { id: "mtn-2gb", name: "2GB", size: "2GB", validity: "30 days", buyPrice: 490, price: 540 },
-    { id: "mtn-3gb", name: "3GB", size: "3GB", validity: "30 days", buyPrice: 735, price: 800 },
-    { id: "mtn-5gb", name: "5GB", size: "5GB", validity: "30 days", buyPrice: 1260, price: 1350 },
-    { id: "mtn-8gb", name: "8GB", size: "8GB", validity: "30 days", buyPrice: 2025, price: 2150 },
-    { id: "mtn-10gb", name: "10GB", size: "10GB", validity: "30 days", buyPrice: 2550, price: 2700 },
-    { id: "mtn-15gb", name: "15GB", size: "15GB", validity: "30 days", buyPrice: 3800, price: 4000 },
-    { id: "mtn-20gb", name: "20GB", size: "20GB", validity: "30 days", buyPrice: 5050, price: 5300 },
-  ],
-  AIRTEL: [
-    { id: "airt-75mb", name: "75MB", size: "75MB", validity: "1 day", buyPrice: 485, price: 540 },
-    { id: "airt-1gb", name: "1GB", size: "1GB", validity: "30 days", buyPrice: 960, price: 1020 },
-    { id: "airt-2gb", name: "2GB", size: "2GB", validity: "30 days", buyPrice: 1150, price: 1220 },
-    { id: "airt-3gb", name: "3GB", size: "3GB", validity: "30 days", buyPrice: 1430, price: 1520 },
-    { id: "airt-4gb", name: "4GB", size: "4GB", validity: "30 days", buyPrice: 1910, price: 2000 },
-    { id: "airt-6gb", name: "6GB", size: "6GB", validity: "30 days", buyPrice: 2385, price: 2500 },
-    { id: "airt-8gb", name: "8GB", size: "8GB", validity: "30 days", buyPrice: 2860, price: 3000 },
-    { id: "airt-11gb", name: "11GB", size: "11GB", validity: "30 days", buyPrice: 3810, price: 4000 },
-  ],
-  GLO: [
-    { id: "glo_1gb", name: "1GB", size: "1GB", validity: "30 days", buyPrice: 430, price: 490 },
-    { id: "glo_2gb", name: "2GB", size: "2GB", validity: "30 days", buyPrice: 860, price: 940 },
-    { id: "glo_4gb", name: "4GB", size: "4GB", validity: "30 days", buyPrice: 1300, price: 1400 },
-    { id: "glo_5gb", name: "5GB", size: "5GB", validity: "30 days", buyPrice: 1750, price: 1870 },
-    { id: "glo_10gb", name: "10GB", size: "10GB", validity: "30 days", buyPrice: 2600, price: 2750 },
-    { id: "glo_18gb", name: "18GB", size: "18GB", validity: "30 days", buyPrice: 4300, price: 4550 },
-  ],
-  "9MOBILE": [
-    { id: "9m_500mb", name: "500MB", size: "500MB", validity: "30 days", buyPrice: 460, price: 520 },
-    { id: "9m_1gb", name: "1GB", size: "1GB", validity: "30 days", buyPrice: 910, price: 980 },
-    { id: "9m_2gb", name: "2GB", size: "2GB", validity: "30 days", buyPrice: 1090, price: 1180 },
-    { id: "9m_3gb", name: "3GB", size: "3GB", validity: "30 days", buyPrice: 1360, price: 1470 },
-    { id: "9m_4gb", name: "4GB", size: "4GB", validity: "30 days", buyPrice: 1810, price: 1950 },
-    { id: "9m_11gb", name: "11GB", size: "11GB", validity: "30 days", buyPrice: 3610, price: 3820 },
-  ],
+export type DataBundle = {
+  id: string; name: string; size: string; validity: string;
+  price: number; provider_code: string; package_code: string;
 };
 
-// Keep backwards compatibility
-export const DATA_BUNDLES = DATA_BUNDLES_VTU;
-
-export function naira(n: number) {
-  return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(n);
-}
+// Real AidaPay packages (live prices)
+export const DATA_BUNDLES: Record<NetworkId, DataBundle[]> = {
+  MTN: [
+    { id: "mtn-3.5gb-1d", name: "3.5GB (1 Day)", size: "3.5GB", validity: "1 day",   price: 985,  provider_code: "mtn-awuf-data", package_code: "PK-MTN-AWUF-NBVXJU" },
+    { id: "mtn-4gb-2d",   name: "4GB (2 Days)",  size: "4GB",   validity: "2 days",  price: 1182, provider_code: "mtn-awuf-data", package_code: "PK-MTN-AWUF-PLKYJTR" },
+    { id: "mtn-6gb-7d",   name: "6GB (7 Days)",  size: "6GB",   validity: "7 days",  price: 2460, provider_code: "mtn-awuf-data", package_code: "PK-MTN-AWUF-JNOD" },
+    { id: "mtn-11gb-7d",  name: "11GB (7 Days)", size: "11GB",  validity: "7 days",  price: 3447, provider_code: "mtn-awuf-data", package_code: "PK-MTN-AWUF-XSBG" },
+    { id: "mtn-20gb-7d",  name: "20GB (Weekly)", size: "20GB",  validity: "7 days",  price: 4925, provider_code: "mtn-awuf-data", package_code: "PK-MTN-AWUF-SB2CF" },
+  ],
+  AIRTEL: [
+    { id: "airtel-2gb-2d", name: "2GB (2 Days)", size: "2GB", validity: "2 days", price: 595, provider_code: "airtel-awuf-data", package_code: "PK-AIRTEL-AWUF-1.5GB-BINGE" },
+  ],
+  GLO: [
+    { id: "glo-750mb-1d", name: "750MB (1 Day)",  size: "750MB",  validity: "1 day",  price: 195,  provider_code: "gloawufdata", package_code: "glo-awuf-data-750mb" },
+    { id: "glo-1.5gb-1d", name: "1.5GB (1 Day)",  size: "1.5GB",  validity: "1 day",  price: 290,  provider_code: "gloawufdata", package_code: "glo-awuf-data-1.5gb" },
+    { id: "glo-2.5gb-2d", name: "2.5GB (2 Days)", size: "2.5GB",  validity: "2 days", price: 490,  provider_code: "gloawufdata", package_code: "glo-awuf-data-2.5gb" },
+    { id: "glo-10gb-7d",  name: "10GB (7 Days)",  size: "10GB",   validity: "7 days", price: 1950, provider_code: "gloawufdata", package_code: "glo-awuf-data-10gb" },
+  ],
+  "9MOBILE": [],
+};
 
 export const ELECTRICITY_PROVIDERS = [
-  { id: "EKEDC", name: "Eko Electric (EKEDC)", location: "Lagos South" },
-  { id: "IKEDC", name: "Ikeja Electric (IKEDC)", location: "Lagos North" },
-  { id: "IBEDC", name: "Ibadan Electric (IBEDC)", location: "Oyo/Ogun/Osun/Kwara" },
-  { id: "AEDC", name: "Abuja Electric (AEDC)", location: "FCT/Niger/Nassarawa/Kogi" },
-  { id: "KEDCO", name: "Kano Electric (KEDCO)", location: "Kano/Jigawa/Katsina" },
-  { id: "BEDC", name: "Benin Electric (BEDC)", location: "Edo/Delta/Ondo/Ekiti" },
-  { id: "PHED", name: "Port Harcourt Electric (PHED)", location: "Rivers/Bayelsa" },
-  { id: "JED", name: "Jos Electric (JED)", location: "Plateau/Benue/Nasarawa" },
-  { id: "ENUGU", name: "Enugu Electric (EEDC)", location: "Enugu/Ebonyi/Abia/Imo" },
-  { id: "KAEDCO", name: "Kaduna Electric (KAEDCO)", location: "Kaduna/Sokoto/Kebbi" },
+  { id: "ikedc",  name: "Ikeja Electric (IKEDC)",       aidapay_code: "ikedc"  },
+  { id: "aedc",   name: "Abuja Electric (AEDC)",         aidapay_code: "aedc"   },
+  { id: "eedc",   name: "Enugu Electric (EEDC)",         aidapay_code: "eedc"   },
+  { id: "ibedc",  name: "Ibadan Electric (IBEDC)",       aidapay_code: "ibedc"  },
+  { id: "bedc",   name: "Benin Electric (BEDC)",         aidapay_code: "bedc"   },
+  { id: "phed",   name: "Port Harcourt Electric (PHED)", aidapay_code: "phed"   },
+  { id: "jed",    name: "Jos Electric (JED)",            aidapay_code: "jed"    },
+  { id: "kedco",  name: "Kano Electric (KEDCO)",         aidapay_code: "kedco"  },
+  { id: "enugu",  name: "Enugu Distribution (EEDC)",     aidapay_code: "enugu"  },
+  { id: "kaduna", name: "Kaduna Electric",               aidapay_code: "kaduna" },
 ];
 
 export const CABLE_PROVIDERS = [
-  { id: "DSTV", name: "DStv", color: "bg-blue-600" },
-  { id: "GOTV", name: "GOtv", color: "bg-green-600" },
-  { id: "STARTIMES", name: "StarTimes", color: "bg-orange-500" },
-  { id: "SHOWMAX", name: "Showmax", color: "bg-purple-600" },
+  { id: "dstv",      name: "DStv",      aidapay_code: "dstv"      },
+  { id: "gotv",      name: "GOtv",      aidapay_code: "gotv"      },
+  { id: "startimes", name: "StarTimes", aidapay_code: "startimes" },
 ];
 
-export const CABLE_PACKAGES: Record<string, { id: string; name: string; price: number }[]> = {
-  DSTV: [
-    { id: "dstv-padi", name: "DStv Padi", price: 4400 },
-    { id: "dstv-yanga", name: "DStv Yanga", price: 6000 },
-    { id: "dstv-confam", name: "DStv Confam", price: 11000 },
-    { id: "dstv-compact", name: "DStv Compact", price: 19000 },
-    { id: "dstv-compact-plus", name: "DStv Compact Plus", price: 30000 },
-    { id: "dstv-premium", name: "DStv Premium", price: 44500 },
+export const CABLE_PACKAGES: Record<string, { id: string; name: string; price: number; aidapay_code: string }[]> = {
+  dstv: [
+    { id: "dstv-mobile",   name: "DStv Mobile",     price: 790,  aidapay_code: "ng_dstv_mobmaxi"  },
+    { id: "dstv-fta-plus", name: "FTA Plus",         price: 1600, aidapay_code: "ng_dstv_ftaple36" },
+    { id: "dstv-access",   name: "Access",           price: 2000, aidapay_code: "ng_dstv_acsse36"  },
   ],
-  GOTV: [
-    { id: "gotv-smallie", name: "GOtv Smallie", price: 1900 },
-    { id: "gotv-jinja", name: "GOtv Jinja", price: 3900 },
-    { id: "gotv-jolli", name: "GOtv Jolli", price: 5800 },
-    { id: "gotv-max", name: "GOtv Max", price: 8500 },
-    { id: "gotv-supa", name: "GOtv Supa", price: 11400 },
-    { id: "gotv-supa-plus", name: "GOtv Supa Plus", price: 16800 },
+  gotv: [
+    { id: "gotv-smallie",   name: "GOtv Smallie",  price: 1900, aidapay_code: "ng_gotv_gohan"    },
+    { id: "gotv-jinja",     name: "GOtv Jinja",    price: 3900, aidapay_code: "ng_gotv_gotvnj1"  },
+    { id: "gotv-quarterly", name: "Smallie Qtrly", price: 5100, aidapay_code: "ng_gotv_golite"   },
   ],
-  STARTIMES: [
-    { id: "st-nova", name: "Nova (Daily)", price: 150 },
-    { id: "st-basic", name: "Basic (Weekly)", price: 700 },
-    { id: "st-smart", name: "Smart (Monthly)", price: 3800 },
-    { id: "st-classic", name: "Classic (Monthly)", price: 4500 },
-    { id: "st-super", name: "Super (Monthly)", price: 7500 },
-  ],
-  SHOWMAX: [
-    { id: "shx-mobile", name: "Mobile", price: 1600 },
-    { id: "shx-entertainment", name: "Entertainment", price: 3200 },
-    { id: "shx-premier", name: "Premier", price: 6300 },
+  startimes: [
+    { id: "st-nova-daily",    name: "Nova Daily (Dish)",     price: 150, aidapay_code: "nova-dish-daily" },
+    { id: "st-nova-antenna",  name: "Nova Daily (Antenna)",  price: 150, aidapay_code: "nova-daily"      },
+    { id: "st-classic-daily", name: "Classic Daily",         price: 320, aidapay_code: "classic-daily"   },
   ],
 };
