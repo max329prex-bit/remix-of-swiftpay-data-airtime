@@ -1,15 +1,20 @@
 import { Link } from "react-router-dom";
-import { Zap } from "lucide-react";
+import boltIcon from "@/assets/swiftpay-bolt.png";
 
-export function Logo({ className = "" }: { className?: string }) {
+export function Logo({ className = "", showWordmark = true, size = 36 }: { className?: string; showWordmark?: boolean; size?: number }) {
   return (
-    <Link to="/" className={`inline-flex items-center gap-2 ${className}`}>
-      <span className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-primary shadow-glow">
-        <Zap className="h-5 w-5 text-white" strokeWidth={2.5} fill="white" />
-      </span>
-      <span className="font-display text-xl font-bold tracking-tight">
-        Swiftly<span className="text-gradient">Pay</span>
-      </span>
+    <Link to="/app" className={`inline-flex items-center gap-2 ${className}`}>
+      <img
+        src={boltIcon}
+        alt="SwiftPay"
+        style={{ width: size, height: size }}
+        className="object-contain drop-shadow-[0_0_18px_hsl(var(--primary)/0.55)]"
+      />
+      {showWordmark && (
+        <span className="font-display text-xl font-bold tracking-tight">
+          Swift<span className="text-gradient">Pay</span>
+        </span>
+      )}
     </Link>
   );
 }
