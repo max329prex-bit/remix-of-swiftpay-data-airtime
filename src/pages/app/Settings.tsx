@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, LogOut, User, Bell, Shield, Sparkles, ChevronRight, Moon } from "lucide-react";
+import { Eye, EyeOff, LogOut, User, Bell, Shield, Sparkles, ChevronRight, Moon, Sun, HelpCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useHideBalance } from "@/hooks/useHideBalance";
+import { useTheme } from "@/hooks/useTheme";
 import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -10,6 +11,7 @@ import { toast } from "sonner";
 export default function Settings() {
   const { user } = useAuth();
   const { hide, setHide } = useHideBalance();
+  const { theme, toggle: toggleTheme } = useTheme();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [notif, setNotif] = useState(() => localStorage.getItem("swiftly:notif") !== "0");
@@ -51,8 +53,11 @@ export default function Settings() {
         <Row icon={Bell} label="Push notifications" desc="Deals & transaction alerts">
           <Switch checked={notif} onCheckedChange={(v) => { setNotif(v); localStorage.setItem("swiftly:notif", v ? "1" : "0"); toast.success(v ? "Notifications on" : "Notifications off"); }} />
         </Row>
-        <Row icon={Moon} label="Theme" desc="Dark (default)" />
+        <Row icon={theme === "dark" ? Moon : Sun} label="Theme" desc={theme === "dark" ? "Dark mode" : "Light mode"}>
+          <Switch checked={theme === "dark"} onCheckedChange={() => toggleTheme()} />
+        </Row>
         <Row icon={Sparkles} label="SwiftPoints info" desc="Earn points on every purchase" />
+        <Row icon={HelpCircle} label="AI Support" desc="Ask Swift anything" onClick={() => nav("/app/support")} chevron />
       </Section>
 
       {/* Account */}

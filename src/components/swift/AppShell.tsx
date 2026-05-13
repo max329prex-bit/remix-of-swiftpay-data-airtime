@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { Home, Wallet as WalletIcon, Receipt, Settings as SettingsIcon, Bell } from "lucide-react";
+import { Home, Wallet as WalletIcon, Receipt, Settings as SettingsIcon, Bell, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +10,8 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 const TABS = [
   { to: "/app", icon: Home, label: "Home", end: true },
   { to: "/app/bills", icon: Receipt, label: "Bills" },
-  { to: "/app/wallet", icon: WalletIcon, label: "Deposit" },
+  { to: "/app/support", icon: Sparkles, label: "Support" },
+  { to: "/app/wallet", icon: WalletIcon, label: "Wallet" },
   { to: "/app/settings", icon: SettingsIcon, label: "Settings" },
 ];
 
