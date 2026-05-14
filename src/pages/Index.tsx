@@ -12,7 +12,7 @@ export default function Index() {
     if (loading) return;
     const t = setTimeout(() => {
       nav(user ? "/app" : "/auth", { replace: true });
-    }, 1600);
+    }, 5000);
     return () => clearTimeout(t);
   }, [user, loading, nav]);
 
